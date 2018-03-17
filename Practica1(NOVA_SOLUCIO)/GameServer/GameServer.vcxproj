@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ServerLogic.cpp" />
     <ClCompile Include="Server_Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlayerServer.h" />
+    <ClInclude Include="ServerLogic.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F879348A-59B4-4582-A78C-00A6EA9E2F33}</ProjectGuid>

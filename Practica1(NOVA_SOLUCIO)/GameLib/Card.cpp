@@ -1,5 +1,6 @@
 #include "Card.h"
 
+
 Card::Card(int num, CardColor c, Vector2f pos, bool turned) {
 	number = num;
 	color = c;
