@@ -1,25 +1,25 @@
 #pragma once
-//#include <SFML\Graphics.hpp>
-//#include <string>
-//#include <iostream>
+#include <SFML\Graphics.hpp>
+#include <string>
+#include <iostream>
 
-//using namespace sf;
+using namespace sf;
+using namespace std;
 
-/*enum CardColor { red, blue, green, black };
+enum CardColor { red, blue, green, black };
 
 class Card { 
 private:
 	int number; 
 	CardColor color;
-	//Vector2f position;
-	//Sprite sprite;
-	//Texture texture;
+	Vector2f position;
+	Sprite sprite;
+	Texture texture;
 
 public:
-	//Card (int num, CardColor c, Vector2f pos);
-	void Draw();
+	Card (int num, CardColor c, Vector2f pos, bool turned);	
 
-};*/
+};
 
 
 	//AIXO SERA UNA FUNCIO QUE TE EL SERVER
