@@ -7,20 +7,24 @@
 #include <list>
 #include <vector>
 #include "Card.h"
+#include "PlayerServer.h"
 
 using namespace std;
 using namespace sf;
+
+enum Comands {MSG_, USERINFO_,FILLCARDS_, CHECKCARD_, UPDATESTACK_, PLAYERNAMES_, WIN_, STARTURN_, PASS, ENEMYCARDS_};
 
 class ServerLogic {
 private:
 	vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
 	Card topCard; //la carta de la pila del mig
 	list<TcpSocket*> clients;
-	//SocketSelector selector;
-	
+	vector<PlayerServer>players;
+		
 public:
 	ServerLogic();
 	bool IsCardValid(Card cardToTest);
 	void ServerManager(int _maxPlayers);
 	void SendAllPlayers(string msg, TcpSocket* clientToExclude);
+	void ComunicationManager(Comands command);
 };

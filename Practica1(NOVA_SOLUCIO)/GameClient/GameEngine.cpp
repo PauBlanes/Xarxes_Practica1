@@ -112,16 +112,15 @@ void GameEngine::start() {
 	else if (status == Socket::Done) {
 		cout << "Ok\n";
 
-		char buffer[100];
-		size_t nameSize;
+		
+		Packet packet;
 		while (name == "")
-		{
-
-			socket.receive(buffer, sizeof(buffer), nameSize);
-			buffer[nameSize] = '\0';
-			name = buffer;
+		{			
+			socket.receive(packet);			
+			packet >> name;
 
 		}
+		cout << name << endl;
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
 	}
@@ -214,13 +213,16 @@ sf::Socket::Status VSend(sf::TcpSocket* sock, string msg) {
 	sf::Socket::Status status;
 	string toSend = name + msg;
 	size_t bytesSend;
-
+	Packet packet2Send;
+	packet2Send << toSend;
+	
 	do
 	{
-		status = sock->send(toSend.c_str(), toSend.length() + 1, bytesSend);
-		if (status == sf::Socket::Partial) {
+		//status = sock->send(toSend.c_str(), toSend.length() + 1, bytesSend);
+		status = sock->send(packet2Send);
+		/*if (status == sf::Socket::Partial) {
 			toSend = toSend.substr(bytesSend + 1, toSend.length() - bytesSend);
-		}
+		}*/
 	} while (status == sf::Socket::Partial);
 	return status;
 }

@@ -47,16 +47,23 @@ void ServerLogic::ServerManager(int _maxPlayers)
 				{
 					// Add the new client to the clients list
 					std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
-					clients.push_back(client);
+					PlayerServer newPlayer;
+					newPlayer.sock = client;
+						//QUEDAR_SE ESPERANT NOM
+						//newPlayer.name = 					
+					players.push_back(newPlayer);
+					//clients.push_back(client);
 					// Add the new client to the selector so that we will be notified when he sends something
 					selector.add(*client);
 
 					//Avisem a tots els clients que hi ha una nova connexio
-					SendAllPlayers("New client connected!", client);
-					string name = "c " + std::to_string(clients.size());
-					client->send(name.c_str(), name.length());
+					SendAllPlayers("New client connected!", client);					
+					string name = "c " + std::to_string(players.size());
+					Packet packet;packet << name;					
+					client->send(packet);
+
 					//Si tots els jugadors ja estan conectats avisem
-					if (clients.size() == maxPlayers) {
+					if (players.size() == maxPlayers) {
 						cout << "Todos los jugadores estan conectados!" << endl;
 						SendAllPlayers("All players are connected", NULL);
 					}
@@ -75,7 +82,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 			else
 			{
 				// The listener socket is not ready, test all other sockets (the clients)
-				list<TcpSocket*>::iterator it = clients.begin();
+				/*list<TcpSocket*>::iterator it = clients.begin();				
 
 				while (it != clients.end())
 				{
@@ -115,17 +122,85 @@ void ServerLogic::ServerManager(int _maxPlayers)
 						it = clients.erase(it);
 					else
 						++it;
+				}*/
+				for (int i = 0; i < players.size(); i++)
+				{
+					bool shouldErase = false;
+					TcpSocket& client = *(players[i].sock);
+					if (selector.isReady(client))
+					{
+						// The client has sent some data, we can receive i												
+						string strRec;
+						Packet packet;
+						players[i].sock->receive(packet);
+						if (status == Socket::Done && players.size() == maxPlayers) //si estan tots els jugadors ja podem començar a rebre i enviar missatges.
+																					//Pero ho posem aqui i a dalt pq igualment volem comprovar desconnexions
+						{
+							packet >> strRec;
+							cout << "He recibido '" << strRec << "' del puerto " << client.getRemotePort() << endl;
+							SendAllPlayers(strRec, NULL);
+						}
+						else if (status == Socket::Disconnected)
+						{
+							selector.remove(client);
+							shouldErase = true;
+							cout << "Elimino el socket con puerto : " << client.getRemotePort() << " que se ha desconectado" << endl;
+							SendAllPlayers("A client disconnected", &client);
+						}
+						else
+						{
+							if (players.size() == maxPlayers) //pq sino ens imprimeix error i simplement es que encara no volem rebre missatges
+								cout << "Error al recibir de " << client.getRemotePort() << endl;
+						}
+					}
+					//Si volem borrar elements de la llista hem de controlar que no ens sortim fora amb l'iterador
+					if (shouldErase)
+						players.erase(players.begin()+i);					
 				}
+
 			}
 		}
 	}
 
 }
 void ServerLogic::SendAllPlayers(string msg, TcpSocket* clientToExclude) {
-	for (list<TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+	/*for (list<TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		TcpSocket& clientRef = **it;
 		if (&clientRef != clientToExclude)
 			clientRef.send(msg.c_str(), msg.length());
+	}*/
+	for (int i = 0; i < players.size(); i++) {
+		TcpSocket& clientRef = *(players[i].sock);
+		if (&clientRef != clientToExclude)
+			clientRef.send(msg.c_str(), msg.length());
+	}
+}
+void ServerLogic::ComunicationManager(Comands command) {	
+
+	switch (command)
+	{
+	case MSG_:
+		break;
+	case USERINFO_:
+		break;
+	case FILLCARDS_:
+		break;
+	case CHECKCARD_:
+		break;
+	case UPDATESTACK_:
+		break;
+	case PLAYERNAMES_:
+		break;
+	case WIN_:
+		break;
+	case STARTURN_:
+		break;
+	case PASS:
+		break;
+	case ENEMYCARDS_:
+		break;
+	default:
+		break;
 	}
 }
