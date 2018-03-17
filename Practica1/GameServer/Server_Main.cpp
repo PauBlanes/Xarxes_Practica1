@@ -26,7 +26,7 @@ void ServerManager()
 	bool running = true;
 	// Create a socket to listen to new connections
 	TcpListener listener;
-	Socket::Status status = listener.listen(5000);
+	Socket::Status status = listener.listen(50000);
 	if (status != Socket::Done)
 	{
 		cout << "Error al abrir listener\n";
