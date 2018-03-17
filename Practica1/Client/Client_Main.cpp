@@ -1,5 +1,6 @@
 
 #include "GameEngine.h"
+#include "Card.h"
 
 GameEngine engine;
 

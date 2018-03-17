@@ -144,10 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card.h" />
-    <ClInclude Include="PlayerInfo.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="PlayerInfo.cpp" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

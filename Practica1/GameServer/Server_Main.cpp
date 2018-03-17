@@ -13,7 +13,6 @@ list<TcpSocket*> clients;
 void ServerManager();
 void SendAllPlayers(string msg, TcpSocket* clientToExclude);
 
-
 int main()
 {
 	ServerManager();	
