@@ -11,18 +11,18 @@ using namespace sf;
 
 
 
-#define OTHER_PLAYERS 1
+/*#define OTHER_PLAYERS 1
 void SendAllPlayers(string msg);
 void ReceiveFromAll(std::vector<std::string>* aMensajes);
-list <TcpSocket*> peers;
+list <TcpSocket*> peers;*/
 
 int main()
 {
 	//ESTABLIR CONNEXIÓ
 	PeerLogic gameLogic;
 	gameLogic.Start();
-
-	//ENVIAR-REBRE NOMS
+	gameLogic.ComunicateNames();
+	gameLogic.gameLoop();
 
 	//Posem a non-blocking tots els peers
 	/*for (list<TcpSocket*>::iterator it = peers.begin(); it != peers.end(); ++it)
@@ -117,7 +117,7 @@ int main()
 	return 0;	
 }
 
-void SendAllPlayers(string msg) {
+/*void SendAllPlayers(string msg) {
 	for (list<TcpSocket*>::iterator it = peers.begin(); it != peers.end(); ++it)
 	{
 		TcpSocket& clientRef = **it;
@@ -172,4 +172,4 @@ void ReceiveFromAll(std::vector<std::string>* aMensajes) {
 		}
 	}
 
-}
+}*/

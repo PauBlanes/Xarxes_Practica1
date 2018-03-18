@@ -26,6 +26,8 @@ private:
 	vector<PlayerServer>others;
 	PlayerServer me;
 
+	vector<string> aMensajes;
+
 	/*vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
 	Card topCard; //la carta de la pila del mig
 	int turnIndex;	
@@ -42,7 +44,11 @@ public:
 	PeerLogic();
 	void Start();
 	void ComunicateNames();
-	void ReceiveManager();
-	void SendManager();
+	void ReceiveManager(PlayerServer* pS);
+	void ReceiveFromAllManager();
+	void gameLoop();
+	void SendManager(string cmd);
+	void SendManager(string cmd, string msg);
+	void SendAllPlayers(Packet msg);
 	bool EveryoneHasName();
 };
