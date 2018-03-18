@@ -9,6 +9,7 @@
 #include "Card.h"
 #include "PlayerServer.h"
 #include "PlayerClient.h"
+#include "Deck.h"
 
 using namespace std;
 using namespace sf;
@@ -20,7 +21,7 @@ private:
 	list<TcpSocket*> clients;
 	vector<PlayerServer>players;
 	int maxPlayers;
-
+	Deck deck;
 public:
 	ServerLogic();
 	bool IsCardValid(Card cardToTest);
@@ -28,5 +29,6 @@ public:
 	void SendAllPlayers(string msg, TcpSocket* clientToExclude);
 	void SendAllPlayers(Packet msg, TcpSocket* clientToExclude);
 	void ComunicationManager(Packet receivedMsg, PlayerServer* pS);
+	void SendCommand(string cmd, PlayerServer* pS);
 	bool EveryoneHasName();
 };

@@ -7,8 +7,8 @@
 using namespace std;
 
 struct PlayerServer {
-	string name;
-	int cardsInHand;
+	string name;	
 	vector<Card> myCards;
 	TcpSocket* sock;
+	bool myTurn;
 };

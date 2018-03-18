@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML\Graphics.hpp>
+#include <SFML\Network.hpp>
 #include <string>
 #include <iostream>
 
@@ -27,6 +28,8 @@ public:
 	
 	string filename;
 };
+
+
 
 
 	

@@ -29,8 +29,12 @@ Table::Table() {
 		otherCards.push_back(newCard);
 	}
 
-	
-		
+	//Omplo array de posicions buides per les meves cartes
+	emptyCardSlots.push_back({ 330,450 });
+	emptyCardSlots.push_back({ 380,450 });
+	emptyCardSlots.push_back({ 430,450 });
+	emptyCardSlots.push_back({ 480,450 });
+	emptyCardSlots.push_back({ 280,450 });
 	
 }
 void Table::DrawTable(RenderWindow* window) {
@@ -38,12 +42,25 @@ void Table::DrawTable(RenderWindow* window) {
 	window->draw(centerCard.GetSprite());
 	
 	//pintar les dels altres	
-	for (int i = 0; i < 15; i++) {
+	for (int i = 0; i < otherCards.size(); i++) {
 		window->draw(otherCards[i].GetSprite());
 	}
 	//pintar les meves
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < myCards.size(); i++) {
 		window->draw(myCards[i].GetSprite());
 	}
 	
+}
+
+void Table::FillCards(Packet newCards) {
+	int numCards;
+	newCards >> numCards;
+	cout << numCards << endl;
+	for (int i = 0; i < numCards; i++) {
+		int cardNum; int cardColor;
+		newCards >> cardNum >> cardColor;		
+		Card temp(cardNum, (CardColor)(cardColor+1), emptyCardSlots[0]);
+		myCards.push_back(temp);
+		emptyCardSlots.erase(emptyCardSlots.begin());
+	}
 }

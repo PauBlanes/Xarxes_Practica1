@@ -27,14 +27,14 @@ void GameEngine::start() {
 	sf::Font font;	
 
 	//CARTES JUGADOR
-	playerPocker.push_back(pocker.getSprite(10));playerPocker.push_back(pocker.getSprite(1));playerPocker.push_back(pocker.getSprite(20));
+	/*playerPocker.push_back(pocker.getSprite(10));playerPocker.push_back(pocker.getSprite(1));playerPocker.push_back(pocker.getSprite(20));
 	playerPocker.push_back(pocker.getSprite(30));playerPocker.push_back(pocker.getSprite(39));
 	
 	playerPockerPos.push_back({ 280,450 }); playerPockerPos.push_back({ 330,450 }); playerPockerPos.push_back({ 380,450 }); playerPockerPos.push_back({ 430,450 }); playerPockerPos.push_back({ 480,450 });
 
 	for (int i = 0; i < 5; i++) {
 		playerPocker[i].setPosition(playerPockerPos[i].x,playerPockerPos[i].y);
-	}
+	}*/
 	///////////////
 	
 
@@ -82,7 +82,7 @@ void GameEngine::start() {
 		{			
 			ReceiveAndManage(&socket);
 		}
-
+	
 		string intro = "Connected to: Servidor";
 		aMensajes.push_back(intro);
 		
@@ -107,9 +107,9 @@ void GameEngine::start() {
 				break;				
 			}
 		}		
-		for (int i = 0; i < 5; i++) {
+		/*for (int i = 0; i < 5; i++) {
 			gameWindow.draw(playerPocker[i]);
-		}		
+		}*/		
 		
 		gameTable.DrawTable(&gameWindow);
 
@@ -250,11 +250,12 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			PlayerClient newPlayer;
 			newPlayer.name = newName;
 			others.push_back(newPlayer);
-		}
-		else if (comand == "STARTGAME") {
-			canStart = true;
-		}
-		else if (comand == "FILLCARDS") {}
+		}		
+		else if (comand == "FILLCARDS") {
+			if (!canStart)
+				canStart = true;
+			gameTable.FillCards(receivedPacket);
+		}		
 		else if (comand == "UPDATESTACK") {
 			//pillar info del packet
 			//gameTable.centerCard.SetVars(11, green, Vector2i(380, 280), false);

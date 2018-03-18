@@ -165,8 +165,10 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 			if (players.size() == maxPlayers && EveryoneHasName()) {
 				cout << "Todos los jugadores estan conectados!" << endl;
 
-				//Enviem conforme poden començar a jogar				
-				SendAllPlayers("STARTGAME", NULL);
+				//Enviem les cartes a cada jugador i ells ja entenen que han de començar
+				for (int i = 0; i < players.size(); i++) {
+					SendCommand("FILLCARDS", &players[i]);
+				}				
 
 				//Aixo ja es pq pintin a la consola
 				SendAllPlayers("All players are connected", NULL);
@@ -185,4 +187,18 @@ bool ServerLogic::EveryoneHasName() {
 			return false;
 	}
 	return true;
+}
+void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
+	Packet packToSend;
+	if (cmd == "FILLCARDS") {
+		packToSend << "FILLCARDS";
+		int howMany = 5 - pS->myCards.size();
+		packToSend << howMany;		
+		for (int i = 0; i < howMany; i++) {
+			Card newCard = deck.stack[0];
+			packToSend << newCard.number << newCard.color;
+			deck.stack.erase(deck.stack.begin());
+		}
+		pS->sock->send(packToSend);
+	}
 }

@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Deck.cpp" />
     <ClCompile Include="ServerLogic.cpp" />
     <ClCompile Include="Server_Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Deck.h" />
     <ClInclude Include="PlayerServer.h" />
     <ClInclude Include="ServerLogic.h" />
   </ItemGroup>
