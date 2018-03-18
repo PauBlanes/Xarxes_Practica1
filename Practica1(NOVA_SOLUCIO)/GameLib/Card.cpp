@@ -7,15 +7,14 @@ Card::Card(int num, CardColor c, Vector2f pos, bool turned) {
 	position = pos;
 	
 	//Setegem el sprite
+	string filename;
 	if (turned == false) {
-		string filename = "img/" + to_string(number) + "-" + to_string(color) + ".jpg";
-		texture.loadFromFile(filename);
-		sprite.setTexture(texture);
+		filename = "img/" + to_string(number) + "-" + to_string(color) + ".jpg";				
 	}
 	else {
-		string filename = "img/back.jpg";
-		texture.loadFromFile(filename);
-		sprite.setTexture(texture);
-	}
-	
+		filename = "img/back.jpg";				
+	}	
+	texture.loadFromFile(filename);
+	sprite.setTexture(texture);
+	sprite.setPosition(pos.x, pos.y);	
 }

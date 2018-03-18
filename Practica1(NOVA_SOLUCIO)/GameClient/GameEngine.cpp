@@ -18,12 +18,7 @@ void GameEngine::start() {
 	cout << "Client" << endl;
 	sf::IpAddress ip = sf::IpAddress::getLocalAddress();
 	sf::TcpSocket socket;
-
-	char connectionType;
-	std::string intro = "Connected to: Servidor";
 	
-	aMensajes.push_back(intro);
-
 	sf::Vector2i screenDimensions(800, 600);
 
 	sf::RenderWindow gameWindow;
@@ -101,6 +96,7 @@ void GameEngine::start() {
 		//exit(0);
 	}
 	else if (status == Socket::Done) {
+		
 		//Enviem el nostre nom
 		cout << "Conected, Chose your name..." << endl;
 		cin >> me.name;
@@ -111,6 +107,9 @@ void GameEngine::start() {
 		{			
 			ReceiveAndManage(&socket);
 		}
+
+		string intro = "Connected to: Servidor";
+		aMensajes.push_back(intro);
 		
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
@@ -157,7 +156,7 @@ void GameEngine::start() {
 				{
 
 					//	SEND
-					//Enviem al altre					
+					//Enviem al server					
 					if (VSend(&socket, mensaje, "MSG") != Socket::Status::Done) {
 						aMensajes.push_back("there is no connection");
 					}
@@ -177,8 +176,7 @@ void GameEngine::start() {
 				break;
 			}
 		}
-		chatWindow.draw(separator);
-		//receiveText(&socket, &aMensajes);
+		chatWindow.draw(separator);		
 		ReceiveAndManage(&socket);
 
 		for (size_t i = 0; i < aMensajes.size(); i++)
@@ -225,7 +223,7 @@ sf::Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string com
 	} while (status == sf::Socket::Partial);
 	return status;
 }
-void GameEngine::receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
+/*void GameEngine::receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
 	size_t received;
 	sf::Socket::Status status;
 	string tmp;
@@ -256,34 +254,53 @@ void GameEngine::receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMen
 		break;
 	}
 
-}
+}*/
 void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 	
 	sf::Socket::Status status;
 	Packet receivedPacket;
 	status = sock->receive(receivedPacket);
-	
 	string comand;
-	receivedPacket >> comand;
 
-	if (comand == "PLAYERNAME") {
-		string newName;
-		receivedPacket >> newName;
-		PlayerClient newPlayer;
-		newPlayer.name = newName;
-		others.push_back(newPlayer);
+	switch (status)
+	{
+	case sf::Socket::Done:
+		receivedPacket >> comand;
+
+		if (comand == "PLAYERNAME") {
+			string newName;
+			receivedPacket >> newName;
+			PlayerClient newPlayer;
+			newPlayer.name = newName;
+			others.push_back(newPlayer);
+		}
+		else if (comand == "STARTGAME") {
+			canStart = true;
+		}
+		else if (comand == "FILLCARDS") {}
+		else if (comand == "UPDATESTACK") {}
+		else if (comand == "WIN") {}
+		else if (comand == "STARTTIMER") {}
+		else if (comand == "ENEMYCARDS") {}
+		else if (comand == "MSG") {
+			string msg;
+			receivedPacket >> msg;
+			aMensajes.push_back(msg);
+		}
+		break;
+	case sf::Socket::NotReady:
+		break;
+	case sf::Socket::Partial:
+		break;
+	case sf::Socket::Disconnected:
+		cout << "SERVER DISCONNECTION" << endl;
+		break;
+	case sf::Socket::Error:
+		cout << "RECEIVE ERROR" << endl;
+		break;
+	default:
+		break;
 	}
-	else if (comand == "STARTGAME") {
-		canStart = true;
-	}
-	else if (comand == "FILLCARDS") {}
-	else if (comand == "UPDATESTACK") {}
-	else if (comand == "WIN") {}
-	else if (comand == "STARTTIMER") {}
-	else if (comand == "ENEMYCARDS") {}
-	else if (comand == "MSG") {
-		string msg;
-		receivedPacket >> msg;
-		aMensajes.push_back(msg);
-	}
+	
+	
 }
