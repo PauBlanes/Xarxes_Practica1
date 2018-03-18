@@ -66,7 +66,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 					PlayerServer newPlayer;
 					newPlayer.sock = client;
 					
-					//Ens esperem a que ens enviï el seu nom
+					//Ens esperem a que ens envi?el seu nom
 					players.push_back(newPlayer);
 					
 					// Add the new client to the selector so that we will be notified when he sends something
@@ -82,7 +82,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 			}
 			else
 			{				
-				//Ningú s'ha intentat connectar, per tant fem la comunicacio amb els actuals			
+				//Ning?s'ha intentat connectar, per tant fem la comunicacio amb els actuals			
 				for (int i = 0; i < players.size(); i++)
 				{					
 					bool shouldErase = false;
@@ -145,7 +145,7 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 
 	if (players.size() == maxPlayers && EveryoneHasName()) { //si no estan tots nomes deixemr ebre info del usuari
 		
-		if (comand == "MSG") { //si ens envien missatge enviem a  tothom, també al que ha enviat
+		if (comand == "MSG") { //si ens envien missatge enviem a  tothom, tamb?al que ha enviat
 			
 			string msg;
 			receivedPacket >> msg;
@@ -265,7 +265,8 @@ void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 }
 void ServerLogic::TurnTimer() {
 	while (!gameEnded) {
-		Time elapsed = clock.getElapsedTime();		
+		Time elapsed = clock.getElapsedTime();
+		cout << elapsed.asSeconds() << endl;
 		if (elapsed >= turnDuration) {			
 			PassTurn();
 		}
