@@ -69,5 +69,12 @@ void Table::UpdateStack(Packet newCard) {
 	int cardNum; int cardColor;
 	newCard >> cardNum >> cardColor;	
 	centerCard.SetCard(cardNum, (CardColor)(cardColor));
-	cout << centerCard.color << endl;
+	
+	for (int i = 0; i < myCards.size(); i++) {
+		if (centerCard == myCards[i]) {
+			emptyCardSlots.push_back(myCards[i].position);
+			myCards.erase(myCards.begin() + i);			
+			return;
+		}
+	}
 }

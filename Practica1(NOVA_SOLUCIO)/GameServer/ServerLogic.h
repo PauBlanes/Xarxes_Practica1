@@ -34,12 +34,13 @@ private:
 
 public:
 	ServerLogic();
-	bool IsCardValid(Card cardToTest);
+	bool IsCardValid(Card cardToTest, PlayerServer* pS);
 	void ServerManager(int _maxPlayers);
 	void SendAllPlayers(string msg, TcpSocket* clientToExclude);
 	void SendAllPlayers(Packet msg, TcpSocket* clientToExclude);
 	void ComunicationManager(Packet receivedMsg, PlayerServer* pS);
 	void SendCommand(string cmd, PlayerServer* pS);
+	void PassTurn();
 	void TurnTimer();
 	void CreateThreads();
 	bool EveryoneHasName();

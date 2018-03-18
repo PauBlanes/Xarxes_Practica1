@@ -40,3 +40,23 @@ void Card::SetPosition(Vector2i pos) {
 	position = pos;
 	sprite.setPosition(position.x, position.y);
 }
+bool Card::isClicked(RenderWindow* window) {
+
+	sf::Vector2f mouse = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
+
+	// retrieve the bounding box of the sprite
+	sf::FloatRect bounds = sprite.getGlobalBounds();
+
+	// hit test
+	if (bounds.contains(mouse))
+	{		
+		return true;
+	}
+	return false;
+}
+bool Card::operator==(const Card& other) const {
+	if (number == other.number && color == other.color)
+		return true;
+	else
+		return false;
+}

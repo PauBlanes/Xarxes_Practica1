@@ -19,8 +19,9 @@ public:
 	~GameEngine();
 	void start();
 	sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command);
+	sf::Socket::Status VSend(sf::TcpSocket* sock, Packet toSend);
 	void ReceiveAndManage(TcpSocket* sock);
-	void receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes);
+	
 	
 private:
 	pokerImg pocker;

@@ -25,18 +25,7 @@ void GameEngine::start() {
 	sf::RenderWindow chatWindow;
 
 	sf::Font font;	
-
-	//CARTES JUGADOR
-	/*playerPocker.push_back(pocker.getSprite(10));playerPocker.push_back(pocker.getSprite(1));playerPocker.push_back(pocker.getSprite(20));
-	playerPocker.push_back(pocker.getSprite(30));playerPocker.push_back(pocker.getSprite(39));
-	
-	playerPockerPos.push_back({ 280,450 }); playerPockerPos.push_back({ 330,450 }); playerPockerPos.push_back({ 380,450 }); playerPockerPos.push_back({ 430,450 }); playerPockerPos.push_back({ 480,450 });
-
-	for (int i = 0; i < 5; i++) {
-		playerPocker[i].setPosition(playerPockerPos[i].x,playerPockerPos[i].y);
-	}*/
-	///////////////
-	
+			
 
 	if (!font.loadFromFile("courbd.ttf"))
 	{
@@ -49,6 +38,12 @@ void GameEngine::start() {
 	chattingText.setFillColor(sf::Color(0, 160, 0));
 	chattingText.setStyle(sf::Text::Bold);
 
+	string turnIndicator = "IT'S YOUR TURN";
+	Text turnIndicatorText(turnIndicator, font, 24);
+	turnIndicatorText.setFillColor(sf::Color(0, 160, 0));
+	turnIndicatorText.setStyle(sf::Text::Bold);
+	turnIndicatorText.setPosition(Vector2f(300, 50));
+	turnIndicatorText.setString(turnIndicator);
 
 	sf::Text text(mensaje, font, 14);
 
@@ -86,24 +81,44 @@ void GameEngine::start() {
 		string intro = "Connected to: Servidor";
 		aMensajes.push_back(intro);		
 
-		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
-		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
+		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), me.name + ":Game");
+		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), me.name + ":Chat");
 	}
 	while (gameWindow.isOpen())
 	{		
 		sf::Event evento;
 		
+		if (me.myTurn) {
+			//indiquem al jugador que es el seu torn				
+			gameWindow.draw(turnIndicatorText);
+		}
+
 		//GAMEPLAY
 		while (gameWindow.pollEvent(evento))
 		{
 			if (me.myTurn) { //si es el nostre torn detectem eventos
 				switch (evento.type)
 				{
+				case::sf::Event::MouseButtonPressed:
+					for each (Card c in gameTable.myCards)
+					{
+						if (c.isClicked(&gameWindow)) {
+							Packet temp;							
+							temp << "CHECKCARD" << c.number << (int)c.color;
+							VSend(&socket, temp);						
+						}
+					}
+					break;
 				case sf::Event::Closed:
 					gameWindow.close();
 					chatWindow.close();
 					break;
-				}
+				case::Event::KeyPressed:
+					if (evento.key.code == Keyboard::P) {
+						Packet temp; temp << "PASS";
+						VSend(&socket, temp);						
+					}
+				}				
 			}			
 		}		
 		
@@ -172,7 +187,7 @@ void GameEngine::start() {
 	socket.disconnect();
 }
 
-sf::Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string command) {
+Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string command) {
 
 	sf::Socket::Status status;
 	string toSend;
@@ -184,7 +199,7 @@ sf::Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string com
 	else {
 		if (command == "MSG") {
 			toSend = me.name + msg;
-		}
+		}		
 		else
 			toSend = msg;
 		packet2Send << command << toSend;
@@ -197,38 +212,17 @@ sf::Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string com
 	} while (status == sf::Socket::Partial);
 	return status;
 }
-/*void GameEngine::receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
-	size_t received;
+Socket::Status GameEngine::VSend(sf::TcpSocket* sock, Packet toSend) {
+	
 	sf::Socket::Status status;
-	string tmp;
-	char buffer[500];
-
-	status = sock->receive(buffer, sizeof(buffer), received);
-
-	switch (status)
+	do
 	{
-	case sf::Socket::Done:
-		buffer[received] = '\0';
-		tmp = buffer;
-		aMensajes->push_back(tmp);
-		break;
+		status = sock->send(toSend);
+	} while (status == sf::Socket::Partial);
 
-	case sf::Socket::Partial:
-		break;
-	case sf::Socket::Disconnected:
-		tmp = "Disconnected";
-		aMensajes->push_back(tmp);
-		exit(0);
-		break;
-	case sf::Socket::Error:
-		tmp = "Error to receive";
-		aMensajes->push_back(tmp);
-		break;
-	default:
-		break;
-	}
+	return status;
+}
 
-}*/
 void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 	
 	sf::Socket::Status status;
@@ -253,7 +247,7 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 				canStart = true;
 			gameTable.FillCards(receivedPacket);
 		}		
-		else if (comand == "UPDATESTACK") {
+		else if (comand == "UPDATESTACK") {			
 			gameTable.UpdateStack(receivedPacket);
 		}
 		else if (comand == "WIN") {
@@ -274,6 +268,7 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			else if (me.myTurn == true) {
 				me.myTurn = false;
 				//parar el timer
+				cout << "end of turn" << endl;
 			}
 		}
 		else if (comand == "ENEMYCARDS") {}

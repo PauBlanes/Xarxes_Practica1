@@ -10,8 +10,7 @@ using namespace std;
 enum CardColor { red, black, blue, green };
 
 class Card { 
-private:	
-	Vector2i position;	
+private:		
 	Texture texture;
 	Sprite sprite;
 public:		
@@ -20,7 +19,10 @@ public:
 	Card();
 	void SetCard(int num, CardColor c);
 	void SetRotation(int rotation);
+	Vector2i position;
 	void SetPosition(Vector2i pos);
+	bool isClicked(RenderWindow* window);
+	bool operator==(const Card& other) const;
 	Sprite GetSprite();
 
 	int number;

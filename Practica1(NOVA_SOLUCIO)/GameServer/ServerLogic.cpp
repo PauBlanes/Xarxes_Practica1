@@ -6,14 +6,23 @@ ServerLogic::ServerLogic(){
 	deck.stack.erase(deck.stack.begin());
 
 	//Establim quan duren els torns
-	turnDuration = seconds(3);
+	turnDuration = seconds(20);
 
 	running = true;
 }
-bool ServerLogic::IsCardValid(Card cardToTest) {
-	if (topCard.color == cardToTest.color && topCard.number == cardToTest.number) // si es el mismo numero y color es valido
-		return true;
-	if (topCard.color != cardToTest.color && ( (cardToTest.number == (topCard.number + 1)) || (cardToTest.number == 2 && topCard.number == 11) ) ) //si es más alta y de color diferente
+bool ServerLogic::IsCardValid(Card cardToTest, PlayerServer* pS) {
+	//Primer comprovem que efectivament es una carta que tens a la teva ma
+	bool I_Have_the_Card;
+	for each (Card c in pS->myCards)
+	{
+		if (c == cardToTest)
+			I_Have_the_Card = true;
+	}
+	if (!I_Have_the_Card)
+		return false;
+
+	//despres comprovem que compleixi les regles del joc
+	if (topCard.color == cardToTest.color || topCard.number == cardToTest.number) // com el uno
 		return true;
 	else
 		return false;
@@ -75,7 +84,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 			{				
 				//Ningú s'ha intentat connectar, per tant fem la comunicacio amb els actuals			
 				for (int i = 0; i < players.size(); i++)
-				{
+				{					
 					bool shouldErase = false;
 					TcpSocket& client = *(players[i].sock);
 					if (selector.isReady(client))
@@ -149,14 +158,24 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 			SendAllPlayers(msgPacket, NULL);			
 		}				
 		else if (comand == "CHECKCARD" && pS->myTurn) {
+			
 			int cardNum; int cardColor;
 			receivedPacket >> cardNum >> cardColor;
-			Card card2Check; card2Check.SetCard(cardNum, (CardColor)(cardColor + 1));
-			if (IsCardValid(card2Check)) { //si la carta es valida actualitzem el stack per a tothom
+			Card card2Check; card2Check.SetCard(cardNum, (CardColor)(cardColor));
+			if (IsCardValid(card2Check, pS)) { //si la carta es valida actualitzem el stack per a tothom
 				topCard = card2Check;
 				SendCommand("UPDATESTACK", NULL);
+				for (int i = 0; i < pS->myCards.size(); i++) //actualitzem la nostra copia del joc
+				{
+					if (pS->myCards[i] == card2Check) {
+						pS->myCards.erase(pS->myCards.begin() + i);
+					}
+				}
 			}
-		}		
+		}
+		else if (comand == "PASS" && pS->myTurn) {
+			PassTurn();
+		}
 	}
 	else {
 		if (comand == "USERINFO") {
@@ -186,7 +205,6 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 				clock.restart();
 				players[turnIndex].myTurn = true;
 				SendCommand("START_TURN", &players[turnIndex]);				
-				turnIndex++;
 				this->CreateThreads();
 
 				//Aixo ja es pq pintin a la consola
@@ -218,7 +236,8 @@ void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 		int howMany = 5 - pS->myCards.size();
 		packToSend << howMany;		
 		for (int i = 0; i < howMany; i++) {
-			Card newCard = deck.stack[0];			
+			Card newCard = deck.stack[0];
+			pS->myCards.push_back(newCard); //per controlar la nostra copia del joc
 			packToSend << newCard.number << (int)newCard.color;
 			deck.stack.erase(deck.stack.begin());
 		}
@@ -237,16 +256,20 @@ void ServerLogic::TurnTimer() {
 	while (running) {
 		Time elapsed = clock.getElapsedTime();		
 		if (elapsed >= turnDuration) {			
-			clock.restart();
-			players[turnIndex].myTurn = false;
-			turnIndex = (turnIndex + 1) % maxPlayers;
-			players[turnIndex].myTurn = true;
-			SendCommand("START_TURN", &players[turnIndex]);
+			PassTurn();
 		}
 	}
+	for (auto& t : some_threads) t.join();
 	
 }
 void ServerLogic::CreateThreads() {
 	some_threads.push_back(thread(&ServerLogic::TurnTimer, this));
-	for (auto& t : some_threads) t.join();
+	
+}
+void ServerLogic::PassTurn() {
+	clock.restart();
+	players[turnIndex].myTurn = false;
+	turnIndex = (turnIndex + 1) % maxPlayers;
+	players[turnIndex].myTurn = true;
+	SendCommand("START_TURN", &players[turnIndex]);
 }
