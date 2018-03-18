@@ -12,7 +12,7 @@ using namespace sf;
 
 int main()
 {	
-	ServerLogic serverLogic;
+	ServerLogic serverLogic;	
 	serverLogic.ServerManager(2);
 
 	return 0;

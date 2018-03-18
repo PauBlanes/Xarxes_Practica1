@@ -10,12 +10,14 @@
 #include "PlayerServer.h"
 #include "PlayerClient.h"
 #include "Deck.h"
+#include <thread>
 
 using namespace std;
 using namespace sf;
 
 class ServerLogic {
 private:
+	bool running;
 	vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
 	Card topCard; //la carta de la pila del mig
 	list<TcpSocket*> clients;
@@ -23,6 +25,11 @@ private:
 	int turnIndex;
 	int maxPlayers;
 	Deck deck;
+
+	Clock clock;
+	Time turnDuration;
+	vector<thread> some_threads;
+
 public:
 	ServerLogic();
 	bool IsCardValid(Card cardToTest);
@@ -31,5 +38,7 @@ public:
 	void SendAllPlayers(Packet msg, TcpSocket* clientToExclude);
 	void ComunicationManager(Packet receivedMsg, PlayerServer* pS);
 	void SendCommand(string cmd, PlayerServer* pS);
+	void TurnTimer();
+	void CreateThreads();
 	bool EveryoneHasName();
 };

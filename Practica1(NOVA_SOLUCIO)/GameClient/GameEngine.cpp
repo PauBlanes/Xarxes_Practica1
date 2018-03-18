@@ -96,18 +96,18 @@ void GameEngine::start() {
 		//GAMEPLAY
 		while (gameWindow.pollEvent(evento))
 		{
-			switch (evento.type)
-			{
-			case sf::Event::Closed:
-				gameWindow.close();
-				chatWindow.close();
-				break;				
-			}
+			if (me.myTurn) { //si es el nostre torn detectem eventos
+				switch (evento.type)
+				{
+				case sf::Event::Closed:
+					gameWindow.close();
+					chatWindow.close();
+					break;
+				}
+			}			
 		}		
-		/*for (int i = 0; i < 5; i++) {
-			gameWindow.draw(playerPocker[i]);
-		}*/		
 		
+		//Pintem la les cartes de la taula
 		gameTable.DrawTable(&gameWindow);
 
 		gameWindow.display();
@@ -256,8 +256,25 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 		else if (comand == "UPDATESTACK") {
 			gameTable.UpdateStack(receivedPacket);
 		}
-		else if (comand == "WIN") {}
-		else if (comand == "STARTTIMER") {}
+		else if (comand == "WIN") {
+			string who;
+			receivedPacket >> who;
+			system("pause");
+			//Pintar nom per pantalla
+		}
+		else if (comand == "START_TURN") {
+			string who;
+			receivedPacket >> who;
+			//MIREM DE QUI ES EL TORN
+			if (who == me.name) {
+				me.myTurn = true;
+				//començar el timer
+			}
+			else if (me.myTurn == true) {
+				me.myTurn = false;
+				//parar el timer
+			}
+		}
 		else if (comand == "ENEMYCARDS") {}
 		else if (comand == "MSG") {
 			string msg;

@@ -67,7 +67,6 @@ void Table::FillCards(Packet newCards) {
 }
 void Table::UpdateStack(Packet newCard) {
 	int cardNum; int cardColor;
-	newCard >> cardNum >> cardColor;
-	cout << cardNum << ":" << cardColor << endl;
+	newCard >> cardNum >> cardColor;	
 	centerCard.SetCard(cardNum, (CardColor)(cardColor+1));
 }

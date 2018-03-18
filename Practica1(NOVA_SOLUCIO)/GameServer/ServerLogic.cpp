@@ -4,6 +4,11 @@ ServerLogic::ServerLogic(){
 	//Agafem la primera carta de la pila per posar-la al mig
 	topCard.SetCard(deck.stack[0].number, deck.stack[0].color);
 	deck.stack.erase(deck.stack.begin());
+
+	//Establim quan duren els torns
+	turnDuration = seconds(3);
+
+	running = true;
 }
 bool ServerLogic::IsCardValid(Card cardToTest) {
 	if (topCard.color == cardToTest.color && topCard.number == cardToTest.number) // si es el mismo numero y color es valido
@@ -14,8 +19,7 @@ bool ServerLogic::IsCardValid(Card cardToTest) {
 		return false;
 }
 void ServerLogic::ServerManager(int _maxPlayers)
-{
-	bool running = true;
+{	
 	// Create a socket to listen to new connections
 	TcpListener listener;
 	Socket::Status status = listener.listen(50000);
@@ -68,7 +72,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 				}
 			}
 			else
-			{
+			{				
 				//Ningú s'ha intentat connectar, per tant fem la comunicacio amb els actuals			
 				for (int i = 0; i < players.size(); i++)
 				{
@@ -145,10 +149,14 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 			SendAllPlayers(msgPacket, NULL);			
 		}				
 		else if (comand == "CHECKCARD") {
+			int cardNum; int cardColor;
+			receivedPacket >> cardNum >> cardColor;
+			Card card2Check; card2Check.SetCard(cardNum, (CardColor)(cardColor + 1));
+			if (IsCardValid(card2Check)) { //si la carta es valida actualitzem el stack per a tothom
+				topCard = card2Check;
+				SendCommand("UPDATESTACK", NULL);
+			}
 		}		
-		
-		
-		//SendAllPlayers(msg, NULL);
 	}
 	else {
 		if (comand == "USERINFO") {
@@ -173,6 +181,9 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 					SendCommand("FILLCARDS", &players[i]);
 				}
 				SendCommand("UPDATESTACK", NULL); //despres de omplir la ma dels jugadors enviem la primera carta
+				clock.restart(); //a partir d'ara es quan volem començar a contar temps dels torns
+				SendCommand("START_TURN", &players[turnIndex]);//per ultim enviem qui es el que comença
+				this->CreateThreads();
 
 				//Aixo ja es pq pintin a la consola
 				SendAllPlayers("All players are connected", NULL);
@@ -206,9 +217,25 @@ void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 		}
 		pS->sock->send(packToSend);
 	}
-	if (cmd == "UPDATESTACK") {
-		cout << "STACKTIME" << endl;
+	if (cmd == "UPDATESTACK") {		
 		packToSend << topCard.number << (int)topCard.color;
 		SendAllPlayers(packToSend, NULL);
 	}
+	if (cmd == "START_TURN") {
+		packToSend << pS->name;
+		SendAllPlayers(packToSend, NULL);
+	}
+}
+void ServerLogic::TurnTimer() {
+	while (running) {
+		Time elapsed = clock.getElapsedTime();
+		cout << elapsed.asSeconds() << endl;
+		if (elapsed >= turnDuration)
+			cout << "FIN DE TURNO";
+	}
+	
+}
+void ServerLogic::CreateThreads() {
+	some_threads.push_back(thread(&ServerLogic::TurnTimer, this));
+	for (auto& t : some_threads) t.join();
 }
