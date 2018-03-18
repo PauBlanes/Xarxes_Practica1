@@ -7,6 +7,7 @@ using namespace sf;
 
 GameEngine::GameEngine()
 {	
+	turnDuration = seconds(10);
 }
 
 GameEngine::~GameEngine()
@@ -45,6 +46,10 @@ void GameEngine::start() {
 	turnIndicatorText.setPosition(Vector2f(300, 50));
 	turnIndicatorText.setString(turnIndicator);
 
+	Text turnTimerText(to_string(turnTimer), font, 24);
+	turnTimerText.setFillColor(sf::Color(255, 255, 255));
+	turnTimerText.setPosition(Vector2f(50, 50));
+	turnTimerText.setString(to_string(turnTimer));
 	
 	Text winText(winner, font, 48);
 	winText.setFillColor(sf::Color(255, 0, 0));
@@ -97,6 +102,8 @@ void GameEngine::start() {
 		if (me.myTurn) {
 			//indiquem al jugador que es el seu torn				
 			gameWindow.draw(turnIndicatorText);
+			turnTimerText.setString(to_string(turnTimer));
+			gameWindow.draw(turnTimerText);
 		}		
 
 		//GAMEPLAY
@@ -274,12 +281,12 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			//MIREM DE QUI ES EL TORN
 			if (who == me.name) {
 				me.myTurn = true;
-				//començar el timer
+				clock.restart();
+				this->CreateThreads(); //activem el contador		
 				cout << "It's your turn" << endl;
 			}
 			else if (me.myTurn == true) {
-				me.myTurn = false;
-				//parar el timer
+				me.myTurn = false;				
 				cout << "end of turn" << endl;
 			}
 		}
@@ -305,4 +312,20 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 	}
 	
 	
+}
+void GameEngine::TurnTimer() {
+	while (me.myTurn) {
+		Time elapsed = clock.getElapsedTime();
+
+		turnTimer = turnDuration.asSeconds() - elapsed.asSeconds();
+
+		if (elapsed >= turnDuration) {
+			me.myTurn = false;	
+			//el propio server ya nos quitara el control no necesitamos hacer más aqui
+		}
+	}
+}
+void GameEngine::CreateThreads() {
+	some_threads.push_back(thread(&GameEngine::TurnTimer, this));
+
 }

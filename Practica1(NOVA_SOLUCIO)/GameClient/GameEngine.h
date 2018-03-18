@@ -7,6 +7,8 @@
 #include "pokerImg.h"
 #include "PlayerClient.h"
 #include "Table.h"
+#include <thread>
+#include <mutex>
 
 struct position
 {
@@ -21,7 +23,8 @@ public:
 	sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command);
 	sf::Socket::Status VSend(sf::TcpSocket* sock, Packet toSend);
 	void ReceiveAndManage(TcpSocket* sock);
-	
+	void TurnTimer();
+	void CreateThreads();
 	
 private:
 	pokerImg pocker;
@@ -42,5 +45,11 @@ private:
 	std::vector<std::string> aMensajes;
 
 	Table gameTable;
+
+	float turnTimer;
+	Clock clock;
+	Time turnDuration;
+	vector<thread> some_threads;
+	mutex myMutex;
 };
 

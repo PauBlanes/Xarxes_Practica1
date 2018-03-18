@@ -6,7 +6,7 @@ ServerLogic::ServerLogic(){
 	deck.stack.erase(deck.stack.begin());
 
 	//Establim quan duren els torns
-	turnDuration = seconds(20);
+	turnDuration = seconds(10);
 
 	running = true;
 }
@@ -265,8 +265,7 @@ void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 }
 void ServerLogic::TurnTimer() {
 	while (!gameEnded) {
-		Time elapsed = clock.getElapsedTime();
-		cout << elapsed.asSeconds() << endl;
+		Time elapsed = clock.getElapsedTime();		
 		if (elapsed >= turnDuration) {			
 			PassTurn();
 		}
