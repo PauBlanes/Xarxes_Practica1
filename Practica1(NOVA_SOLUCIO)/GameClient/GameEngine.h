@@ -37,6 +37,7 @@ private:
 	int otherPlayers;
 
 	bool canStart;
+	string winner;
 
 	std::vector<std::string> aMensajes;
 

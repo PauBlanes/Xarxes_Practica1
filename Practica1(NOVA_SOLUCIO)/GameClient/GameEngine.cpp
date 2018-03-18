@@ -45,6 +45,13 @@ void GameEngine::start() {
 	turnIndicatorText.setPosition(Vector2f(300, 50));
 	turnIndicatorText.setString(turnIndicator);
 
+	
+	Text winText(winner, font, 48);
+	winText.setFillColor(sf::Color(255, 0, 0));
+	winText.setStyle(sf::Text::Bold);
+	winText.setPosition(Vector2f(100, 200));
+	
+
 	sf::Text text(mensaje, font, 14);
 
 
@@ -86,12 +93,11 @@ void GameEngine::start() {
 	}
 	while (gameWindow.isOpen())
 	{		
-		sf::Event evento;
-		
+		sf::Event evento;		
 		if (me.myTurn) {
 			//indiquem al jugador que es el seu torn				
 			gameWindow.draw(turnIndicatorText);
-		}
+		}		
 
 		//GAMEPLAY
 		while (gameWindow.pollEvent(evento))
@@ -124,6 +130,11 @@ void GameEngine::start() {
 		
 		//Pintem la les cartes de la taula
 		gameTable.DrawTable(&gameWindow);
+
+		if (winner != "") {
+			winText.setString(winner);
+			gameWindow.draw(winText);
+		}
 
 		gameWindow.display();
 		gameWindow.clear();
@@ -251,10 +262,11 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			gameTable.UpdateStack(receivedPacket);
 		}
 		else if (comand == "WIN") {
-			string who;
-			receivedPacket >> who;
-			system("pause");
-			//Pintar nom per pantalla
+			string winName;
+			receivedPacket >> winName;
+			winner = "THE WINNER IS : " + winName;
+			cout << winner << endl;
+			me.myTurn = false;					
 		}
 		else if (comand == "START_TURN") {
 			string who;

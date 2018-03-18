@@ -32,6 +32,8 @@ private:
 	vector<thread> some_threads;
 	mutex myMutex;
 
+	bool gameEnded;
+
 public:
 	ServerLogic();
 	bool IsCardValid(Card cardToTest, PlayerServer* pS);

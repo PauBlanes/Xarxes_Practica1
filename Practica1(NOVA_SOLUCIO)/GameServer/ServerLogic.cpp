@@ -171,6 +171,10 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 						pS->myCards.erase(pS->myCards.begin() + i);
 					}
 				}
+				if (pS->myCards.empty() && deck.stack.empty()) { //sin ja no queden cartes aquest jugador ha guanyat
+					gameEnded = true;
+					SendCommand("WIN", NULL);
+				}
 			}
 		}
 		else if (comand == "PASS" && pS->myTurn) {
@@ -200,7 +204,8 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 					SendCommand("FILLCARDS", &players[i]);
 				}
 				SendCommand("UPDATESTACK", NULL); //despres de omplir la ma dels jugadors enviem la primera carta
-				
+				SendCommand("WIN", NULL);
+
 				//Enviem al primer jugador que es el seu torn i comencem la rutina de torns
 				clock.restart();
 				players[turnIndex].myTurn = true;
@@ -228,32 +233,39 @@ bool ServerLogic::EveryoneHasName() {
 void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 	
 	lock_guard<mutex>guard(myMutex);
-	
-	Packet packToSend;
-	packToSend << cmd;
+	if (!gameEnded) {
+		Packet packToSend;
+		packToSend << cmd;
 
-	if (cmd == "FILLCARDS") {		
-		int howMany = 5 - pS->myCards.size();
-		packToSend << howMany;		
-		for (int i = 0; i < howMany; i++) {
-			Card newCard = deck.stack[0];
-			pS->myCards.push_back(newCard); //per controlar la nostra copia del joc
-			packToSend << newCard.number << (int)newCard.color;
-			deck.stack.erase(deck.stack.begin());
+		if (cmd == "FILLCARDS") {
+			int howMany = 5 - pS->myCards.size();
+			packToSend << howMany;
+			for (int i = 0; i < howMany; i++) {
+				if (deck.stack.size() > 0) {
+					Card newCard = deck.stack[0];
+					pS->myCards.push_back(newCard); //per controlar la nostra copia del joc
+					packToSend << newCard.number << (int)newCard.color;
+					deck.stack.erase(deck.stack.begin());
+				}
+			}
+			pS->sock->send(packToSend);
 		}
-		pS->sock->send(packToSend);
-	}
-	if (cmd == "UPDATESTACK") {		
-		packToSend << topCard.number << (int)topCard.color;
-		SendAllPlayers(packToSend, NULL);
-	}
-	if (cmd == "START_TURN") {
-		packToSend << pS->name;
-		SendAllPlayers(packToSend, NULL);
-	}
+		if (cmd == "UPDATESTACK") {
+			packToSend << topCard.number << (int)topCard.color;
+			SendAllPlayers(packToSend, NULL);
+		}
+		if (cmd == "START_TURN") {
+			packToSend << pS->name;
+			SendAllPlayers(packToSend, NULL);
+		}
+		if (cmd == "WIN") {
+			packToSend << players[turnIndex].name;			
+			SendAllPlayers(packToSend, NULL);
+		}
+	}	
 }
 void ServerLogic::TurnTimer() {
-	while (running) {
+	while (!gameEnded) {
 		Time elapsed = clock.getElapsedTime();		
 		if (elapsed >= turnDuration) {			
 			PassTurn();
@@ -267,9 +279,11 @@ void ServerLogic::CreateThreads() {
 	
 }
 void ServerLogic::PassTurn() {
+	
+	SendCommand("FILLCARDS", &players[turnIndex]);
 	clock.restart();
 	players[turnIndex].myTurn = false;
 	turnIndex = (turnIndex + 1) % maxPlayers;
-	players[turnIndex].myTurn = true;
+	players[turnIndex].myTurn = true;	
 	SendCommand("START_TURN", &players[turnIndex]);
 }
