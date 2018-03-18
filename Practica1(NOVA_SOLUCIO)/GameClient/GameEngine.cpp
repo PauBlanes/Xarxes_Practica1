@@ -269,6 +269,7 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			if (who == me.name) {
 				me.myTurn = true;
 				//començar el timer
+				cout << "It's your turn" << endl;
 			}
 			else if (me.myTurn == true) {
 				me.myTurn = false;

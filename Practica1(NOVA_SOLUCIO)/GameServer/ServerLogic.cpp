@@ -204,6 +204,9 @@ bool ServerLogic::EveryoneHasName() {
 	return true;
 }
 void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
+	
+	lock_guard<mutex>guard(myMutex);
+	
 	Packet packToSend;
 	packToSend << cmd;
 
@@ -228,10 +231,12 @@ void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 }
 void ServerLogic::TurnTimer() {
 	while (running) {
-		Time elapsed = clock.getElapsedTime();
-		cout << elapsed.asSeconds() << endl;
-		if (elapsed >= turnDuration)
-			cout << "FIN DE TURNO";
+		Time elapsed = clock.getElapsedTime();		
+		if (elapsed >= turnDuration) {			
+			clock.restart();
+			turnIndex = (turnIndex + 1) % maxPlayers;
+			SendCommand("START_TURN", &players[turnIndex]);
+		}
 	}
 	
 }

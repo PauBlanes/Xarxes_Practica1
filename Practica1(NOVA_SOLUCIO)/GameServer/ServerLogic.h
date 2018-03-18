@@ -11,6 +11,7 @@
 #include "PlayerClient.h"
 #include "Deck.h"
 #include <thread>
+#include <mutex>
 
 using namespace std;
 using namespace sf;
@@ -29,6 +30,7 @@ private:
 	Clock clock;
 	Time turnDuration;
 	vector<thread> some_threads;
+	mutex myMutex;
 
 public:
 	ServerLogic();
