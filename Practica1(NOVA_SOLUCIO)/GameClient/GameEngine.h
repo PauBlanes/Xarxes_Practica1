@@ -6,6 +6,7 @@
 #include <iostream>
 #include "pokerImg.h"
 #include "PlayerClient.h"
+#include "Table.h"
 
 struct position
 {
@@ -28,9 +29,8 @@ private:
 
 	vector <position> otherPlayerPockerPos;
 	vector <Sprite> otherPlayerPocker;
-
-	Sprite centerCard;
-
+	
+	
 	PlayerClient me;
 	vector<PlayerClient> others;
 	int otherPlayers;
@@ -38,5 +38,7 @@ private:
 	bool canStart;
 
 	std::vector<std::string> aMensajes;
+
+	Table gameTable;
 };
 

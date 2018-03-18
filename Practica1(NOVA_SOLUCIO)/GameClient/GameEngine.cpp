@@ -24,11 +24,9 @@ void GameEngine::start() {
 	sf::RenderWindow gameWindow;
 	sf::RenderWindow chatWindow;
 
-	sf::Font font;
+	sf::Font font;	
 
-	centerCard = pocker.getSprite(rand() % 39);
-	centerCard.setPosition(380,280);
-
+	//CARTES JUGADOR
 	playerPocker.push_back(pocker.getSprite(10));playerPocker.push_back(pocker.getSprite(1));playerPocker.push_back(pocker.getSprite(20));
 	playerPocker.push_back(pocker.getSprite(30));playerPocker.push_back(pocker.getSprite(39));
 	
@@ -37,31 +35,8 @@ void GameEngine::start() {
 	for (int i = 0; i < 5; i++) {
 		playerPocker[i].setPosition(playerPockerPos[i].x,playerPockerPos[i].y);
 	}
-
-	otherPlayerPockerPos.push_back({ 280,100 });
-	otherPlayerPockerPos.push_back({ 330,100 });
-	otherPlayerPockerPos.push_back({ 380,100 });
-	otherPlayerPockerPos.push_back({ 430,100 });
-	otherPlayerPockerPos.push_back({ 480,100 });
-
-	otherPlayerPockerPos.push_back({ 700,180 }); 
-	otherPlayerPockerPos.push_back({ 700,230 }); 
-	otherPlayerPockerPos.push_back({ 700,280 }); 
-	otherPlayerPockerPos.push_back({ 700,330 }); 
-	otherPlayerPockerPos.push_back({ 700,380 });
+	///////////////
 	
-	otherPlayerPockerPos.push_back({ 170,180 });
-	otherPlayerPockerPos.push_back({ 170,230 });
-	otherPlayerPockerPos.push_back({ 170,280 });
-	otherPlayerPockerPos.push_back({ 170,330 });
-	otherPlayerPockerPos.push_back({ 170,380 });
-
-	for (int i = 0; i < 15; i++) {
-		otherPlayerPocker.push_back(pocker.getSprite(40));
-		otherPlayerPocker[i].setPosition(otherPlayerPockerPos[i].x, otherPlayerPockerPos[i].y);
-		if(i>4)
-		otherPlayerPocker[i].setRotation(90);
-	}
 
 	if (!font.loadFromFile("courbd.ttf"))
 	{
@@ -111,6 +86,9 @@ void GameEngine::start() {
 		string intro = "Connected to: Servidor";
 		aMensajes.push_back(intro);
 		
+		gameTable.centerCard.SetCard(11, black);
+		gameTable.centerCard.SetPosition(Vector2i(380, 280));
+
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
 	}
@@ -131,11 +109,10 @@ void GameEngine::start() {
 		}		
 		for (int i = 0; i < 5; i++) {
 			gameWindow.draw(playerPocker[i]);
-		}
-		for (int i = 0; i < 15; i++) {
-			gameWindow.draw(otherPlayerPocker[i]);
-		}
-		gameWindow.draw(centerCard);
+		}		
+		
+		gameTable.DrawTable(&gameWindow);
+
 		gameWindow.display();
 		gameWindow.clear();
 
@@ -278,7 +255,10 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			canStart = true;
 		}
 		else if (comand == "FILLCARDS") {}
-		else if (comand == "UPDATESTACK") {}
+		else if (comand == "UPDATESTACK") {
+			//pillar info del packet
+			//gameTable.centerCard.SetVars(11, green, Vector2i(380, 280), false);
+		}
 		else if (comand == "WIN") {}
 		else if (comand == "STARTTIMER") {}
 		else if (comand == "ENEMYCARDS") {}

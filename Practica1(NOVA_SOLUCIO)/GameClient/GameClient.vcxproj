@@ -22,10 +22,12 @@
     <ClCompile Include="Client_Main.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="pokerImg.cpp" />
+    <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="pokerImg.h" />
+    <ClInclude Include="Table.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{84733070-02B7-4B64-9203-707F660FA508}</ProjectGuid>
