@@ -148,7 +148,7 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 			msgPacket << msg;			
 			SendAllPlayers(msgPacket, NULL);			
 		}				
-		else if (comand == "CHECKCARD") {
+		else if (comand == "CHECKCARD" && pS->myTurn) {
 			int cardNum; int cardColor;
 			receivedPacket >> cardNum >> cardColor;
 			Card card2Check; card2Check.SetCard(cardNum, (CardColor)(cardColor + 1));
@@ -181,8 +181,12 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 					SendCommand("FILLCARDS", &players[i]);
 				}
 				SendCommand("UPDATESTACK", NULL); //despres de omplir la ma dels jugadors enviem la primera carta
-				clock.restart(); //a partir d'ara es quan volem començar a contar temps dels torns
-				SendCommand("START_TURN", &players[turnIndex]);//per ultim enviem qui es el que comença
+				
+				//Enviem al primer jugador que es el seu torn i comencem la rutina de torns
+				clock.restart();
+				players[turnIndex].myTurn = true;
+				SendCommand("START_TURN", &players[turnIndex]);				
+				turnIndex++;
 				this->CreateThreads();
 
 				//Aixo ja es pq pintin a la consola
@@ -234,7 +238,9 @@ void ServerLogic::TurnTimer() {
 		Time elapsed = clock.getElapsedTime();		
 		if (elapsed >= turnDuration) {			
 			clock.restart();
+			players[turnIndex].myTurn = false;
 			turnIndex = (turnIndex + 1) % maxPlayers;
+			players[turnIndex].myTurn = true;
 			SendCommand("START_TURN", &players[turnIndex]);
 		}
 	}

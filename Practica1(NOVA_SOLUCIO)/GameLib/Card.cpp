@@ -8,7 +8,7 @@ Card::Card(int num, CardColor c, Vector2i pos) {
 	
 	//Setegem el sprite
 	filename;	
-	filename = "img/" + to_string(number) + "-" + to_string(color) + ".jpg";				
+	filename = "img/" + to_string(number) + "-" + to_string(color+1) + ".jpg";				
 		
 	sprite.setPosition(pos.x, pos.y);	
 }

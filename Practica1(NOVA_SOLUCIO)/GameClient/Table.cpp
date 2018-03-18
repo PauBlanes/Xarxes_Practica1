@@ -60,7 +60,7 @@ void Table::FillCards(Packet newCards) {
 	for (int i = 0; i < numCards; i++) {
 		int cardNum; int cardColor;
 		newCards >> cardNum >> cardColor;		
-		Card temp(cardNum, (CardColor)(cardColor+1), emptyCardSlots[0]);
+		Card temp(cardNum, (CardColor)(cardColor), emptyCardSlots[0]);
 		myCards.push_back(temp);
 		emptyCardSlots.erase(emptyCardSlots.begin());
 	}
@@ -68,5 +68,6 @@ void Table::FillCards(Packet newCards) {
 void Table::UpdateStack(Packet newCard) {
 	int cardNum; int cardColor;
 	newCard >> cardNum >> cardColor;	
-	centerCard.SetCard(cardNum, (CardColor)(cardColor+1));
+	centerCard.SetCard(cardNum, (CardColor)(cardColor));
+	cout << centerCard.color << endl;
 }
