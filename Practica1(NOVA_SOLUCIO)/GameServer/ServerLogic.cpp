@@ -30,7 +30,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 	selector.add(listener);
 
 	//Define the number of players you want
-	int maxPlayers = _maxPlayers;
+	maxPlayers = _maxPlayers;
 
 	// Endless loop that waits for new connections
 	while (running)
@@ -49,23 +49,22 @@ void ServerLogic::ServerManager(int _maxPlayers)
 					std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
 					PlayerServer newPlayer;
 					newPlayer.sock = client;
-						//QUEDAR_SE ESPERANT NOM
-						//newPlayer.name = 					
+					
+					//Ens esperem a que ens enviï el seu nom
 					players.push_back(newPlayer);
-					//clients.push_back(client);
+					
 					// Add the new client to the selector so that we will be notified when he sends something
 					selector.add(*client);
 
 					//Avisem a tots els clients que hi ha una nova connexio
 					SendAllPlayers("New client connected!", client);					
-					string name = "c " + std::to_string(players.size());
-					Packet packet;packet << name;					
-					client->send(packet);
-
+					
 					//Si tots els jugadors ja estan conectats avisem
-					if (players.size() == maxPlayers) {
+					if (players.size() == maxPlayers && EveryoneHasName()) {
 						cout << "Todos los jugadores estan conectados!" << endl;
-						SendAllPlayers("All players are connected", NULL);
+						//generar string amb els noms
+						SendAllPlayers("PLAYERNAMES", NULL); //Els hi enviem els noms
+						SendAllPlayers("All players are connected", NULL);						
 					}
 					else {
 						SendAllPlayers("Waiting for players...", NULL);
@@ -81,48 +80,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 			}
 			else
 			{
-				// The listener socket is not ready, test all other sockets (the clients)
-				/*list<TcpSocket*>::iterator it = clients.begin();				
-
-				while (it != clients.end())
-				{
-					bool shouldErase = false;
-					TcpSocket& client = **it;
-					if (selector.isReady(client))
-					{
-						// The client has sent some data, we can receive it
-						//Packet packet;
-						char buffer[500];
-						size_t received;
-						status = client.receive(buffer, sizeof(buffer), received);
-						if (status == Socket::Done && clients.size() == maxPlayers) //si estan tots els jugadors ja podem començar a rebre i enviar missatges.
-																					//Pero ho posem aqui i a dalt pq igualment volem comprovar desconnexions
-						{
-							buffer[received] = '\0';
-							string strRec = buffer;
-							//packet >> strRec;
-							cout << "He recibido '" << strRec << "' del puerto " << client.getRemotePort() << endl;
-							SendAllPlayers(strRec, NULL);
-						}
-						else if (status == Socket::Disconnected)
-						{
-							selector.remove(client);
-							shouldErase = true;
-							cout << "Elimino el socket con puerto : " << client.getRemotePort() << " que se ha desconectado" << endl;
-							SendAllPlayers("A client disconnected", &client);
-						}
-						else
-						{
-							if (clients.size() == maxPlayers) //pq sino ens imprimeix error i simplement es que encara no volem rebre missatges
-								cout << "Error al recibir de " << client.getRemotePort() << endl;
-						}
-					}
-					//Si volem borrar elements de la llista hem de controlar que no ens sortim fora amb l'iterador
-					if (shouldErase)
-						it = clients.erase(it);
-					else
-						++it;
-				}*/
+				//Ningú s'ha intentat connectar, per tant fem la comunicacio amb els actuals			
 				for (int i = 0; i < players.size(); i++)
 				{
 					bool shouldErase = false;
@@ -133,12 +91,10 @@ void ServerLogic::ServerManager(int _maxPlayers)
 						string strRec;
 						Packet packet;
 						players[i].sock->receive(packet);
-						if (status == Socket::Done && players.size() == maxPlayers) //si estan tots els jugadors ja podem començar a rebre i enviar missatges.
-																					//Pero ho posem aqui i a dalt pq igualment volem comprovar desconnexions
+						if (status == Socket::Done) //Aquesta funcio ja comprovara si estan tots
 						{
-							packet >> strRec;
-							cout << "He recibido '" << strRec << "' del puerto " << client.getRemotePort() << endl;
-							SendAllPlayers(strRec, NULL);
+							ComunicationManager(packet, &players[i]);
+							
 						}
 						else if (status == Socket::Disconnected)
 						{
@@ -164,43 +120,55 @@ void ServerLogic::ServerManager(int _maxPlayers)
 
 }
 void ServerLogic::SendAllPlayers(string msg, TcpSocket* clientToExclude) {
-	/*for (list<TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
-	{
-		TcpSocket& clientRef = **it;
-		if (&clientRef != clientToExclude)
-			clientRef.send(msg.c_str(), msg.length());
-	}*/
+	
 	for (int i = 0; i < players.size(); i++) {
 		TcpSocket& clientRef = *(players[i].sock);
+		Packet toSend; toSend << msg;
 		if (&clientRef != clientToExclude)
-			clientRef.send(msg.c_str(), msg.length());
+			clientRef.send(toSend);
 	}
 }
-void ServerLogic::ComunicationManager(Comands command) {	
+void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 
-	switch (command)
-	{
-	case MSG_:
-		break;
-	case USERINFO_:
-		break;
-	case FILLCARDS_:
-		break;
-	case CHECKCARD_:
-		break;
-	case UPDATESTACK_:
-		break;
-	case PLAYERNAMES_:
-		break;
-	case WIN_:
-		break;
-	case STARTURN_:
-		break;
-	case PASS:
-		break;
-	case ENEMYCARDS_:
-		break;
-	default:
-		break;
+	string msg;
+	receivedPacket >> msg;	
+
+	if (players.size() == maxPlayers) {
+		
+		/*if (comand == "MSG") {
+			string playerName;
+			receivedMsg >> playerName;
+			return playerName;
+		}
+		else if (comand == "USERINFO") {
+		}
+		else if (comand == "FILLCARDS") {
+		}
+		else if (comand == "CHECKCARD") {
+		}
+		else if (comand == "UPDATESTACK") {
+		}
+		else if (comand == "PLAYERNAMES") {
+		}
+		else if (comand == "WIN") {
+		}
+		else if (comand == "STARTTURN") {
+		}
+		else if (comand == "ENEMYCARDS") {
+		}*/
+		
+		cout << "He recibido '" << msg << "' del puerto " << pS->sock->getRemotePort() << endl;
+		SendAllPlayers(msg, NULL);
 	}
+	else { //si encara no estan tots és que he rebut el nom
+		pS->name = msg;
+	}	
+	
+}
+bool ServerLogic::EveryoneHasName() {
+	for (int i = 0; i < players.size(); i++) {
+		if (players[i].name == "")
+			return false;
+	}
+	return true;
 }

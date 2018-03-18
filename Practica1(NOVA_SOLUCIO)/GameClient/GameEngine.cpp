@@ -5,7 +5,7 @@ using namespace std;
 using namespace sf;
 
 
-sf::Socket::Status VSend(sf::TcpSocket* sock, string msg);
+sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command);
 
 void receiveText(TcpSocket* sock, vector<string>* msgArray);
 
@@ -110,17 +110,21 @@ void GameEngine::start() {
 		//exit(0);
 	}
 	else if (status == Socket::Done) {
-		cout << "Ok\n";
-
+		//Enviem el nostre nom
+		cout << "Conected, Chose your name..." << endl;
+		cin >> name;
+		VSend(&socket, name, "");
 		
+		//Esperem a rebre els dels altres
 		Packet packet;
-		while (name == "")
+		string receivedMsg;
+		while (receivedMsg != "PLAYERNAMES")
 		{			
 			socket.receive(packet);			
-			packet >> name;
+			packet >> receivedMsg;			
+		}			
+		//Omplir array players amb els noms
 
-		}
-		cout << name << endl;
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
 	}
@@ -167,7 +171,7 @@ void GameEngine::start() {
 
 					//	SEND
 					//Enviem al altre					
-					if (VSend(&socket, mensaje) != Socket::Status::Done) {
+					if (VSend(&socket, mensaje, "") != Socket::Status::Done) {
 						aMensajes.push_back("there is no connection");
 					}
 
@@ -208,21 +212,20 @@ void GameEngine::start() {
 	socket.disconnect();
 }
 
-sf::Socket::Status VSend(sf::TcpSocket* sock, string msg) {
+sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command) {
 
 	sf::Socket::Status status;
-	string toSend = name + msg;
+	string toSend = /*name + */msg;
 	size_t bytesSend;
 	Packet packet2Send;
-	packet2Send << toSend;
+	if (command != "")
+		packet2Send << command << toSend;
+	else
+		packet2Send << toSend;
 	
 	do
-	{
-		//status = sock->send(toSend.c_str(), toSend.length() + 1, bytesSend);
-		status = sock->send(packet2Send);
-		/*if (status == sf::Socket::Partial) {
-			toSend = toSend.substr(bytesSend + 1, toSend.length() - bytesSend);
-		}*/
+	{		
+		status = sock->send(packet2Send);		
 	} while (status == sf::Socket::Partial);
 	return status;
 }

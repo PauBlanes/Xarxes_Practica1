@@ -5,7 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include "pokerImg.h"
-
+#include "PlayerClient.h"
 
 struct position
 {

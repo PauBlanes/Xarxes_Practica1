@@ -8,11 +8,10 @@
 #include <vector>
 #include "Card.h"
 #include "PlayerServer.h"
+#include "PlayerClient.h"
 
 using namespace std;
 using namespace sf;
-
-enum Comands {MSG_, USERINFO_,FILLCARDS_, CHECKCARD_, UPDATESTACK_, PLAYERNAMES_, WIN_, STARTURN_, PASS, ENEMYCARDS_};
 
 class ServerLogic {
 private:
@@ -20,11 +19,13 @@ private:
 	Card topCard; //la carta de la pila del mig
 	list<TcpSocket*> clients;
 	vector<PlayerServer>players;
-		
+	int maxPlayers;
+
 public:
 	ServerLogic();
 	bool IsCardValid(Card cardToTest);
 	void ServerManager(int _maxPlayers);
 	void SendAllPlayers(string msg, TcpSocket* clientToExclude);
-	void ComunicationManager(Comands command);
+	void ComunicationManager(Packet receivedMsg, PlayerServer* pS);
+	bool EveryoneHasName();
 };
