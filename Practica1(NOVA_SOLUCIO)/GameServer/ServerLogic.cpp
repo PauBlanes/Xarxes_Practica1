@@ -54,21 +54,7 @@ void ServerLogic::ServerManager(int _maxPlayers)
 					players.push_back(newPlayer);
 					
 					// Add the new client to the selector so that we will be notified when he sends something
-					selector.add(*client);
-
-					//Avisem a tots els clients que hi ha una nova connexio
-					SendAllPlayers("New client connected!", client);					
-					
-					//Si tots els jugadors ja estan conectats avisem
-					if (players.size() == maxPlayers && EveryoneHasName()) {
-						cout << "Todos los jugadores estan conectados!" << endl;
-						//generar string amb els noms
-						SendAllPlayers("PLAYERNAMES", NULL); //Els hi enviem els noms
-						SendAllPlayers("All players are connected", NULL);						
-					}
-					else {
-						SendAllPlayers("Waiting for players...", NULL);
-					}
+					selector.add(*client);				
 
 				}
 				else
@@ -128,41 +114,69 @@ void ServerLogic::SendAllPlayers(string msg, TcpSocket* clientToExclude) {
 			clientRef.send(toSend);
 	}
 }
+void ServerLogic::SendAllPlayers(Packet msg, TcpSocket* clientToExclude) {
+
+	for (int i = 0; i < players.size(); i++) {
+		TcpSocket& clientRef = *(players[i].sock);		
+		if (&clientRef != clientToExclude)
+			clientRef.send(msg);
+	}
+}
 void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 
-	string msg;
-	receivedPacket >> msg;	
+	string comand;
+	receivedPacket >> comand;	
 
-	if (players.size() == maxPlayers) {
+	if (players.size() == maxPlayers && EveryoneHasName()) { //si no estan tots nomes deixemr ebre info del usuari
 		
-		/*if (comand == "MSG") {
-			string playerName;
-			receivedMsg >> playerName;
-			return playerName;
-		}
-		else if (comand == "USERINFO") {
-		}
-		else if (comand == "FILLCARDS") {
-		}
+		if (comand == "MSG") { //si ens envien missatge enviem a  tothom, també al que ha enviat
+			
+			string msg;
+			receivedPacket >> msg;
+			cout << "He recibido '" << msg << "' del puerto " << pS->sock->getRemotePort() << endl;
+			//possibles comprovacions de insults i etc.
+
+			Packet msgPacket; 
+			msgPacket << "MSG";
+			msgPacket << msg;			
+			SendAllPlayers(msgPacket, NULL);			
+		}				
 		else if (comand == "CHECKCARD") {
-		}
-		else if (comand == "UPDATESTACK") {
-		}
-		else if (comand == "PLAYERNAMES") {
-		}
-		else if (comand == "WIN") {
-		}
-		else if (comand == "STARTTURN") {
-		}
-		else if (comand == "ENEMYCARDS") {
-		}*/
+		}		
 		
-		cout << "He recibido '" << msg << "' del puerto " << pS->sock->getRemotePort() << endl;
-		SendAllPlayers(msg, NULL);
+		
+		//SendAllPlayers(msg, NULL);
 	}
-	else { //si encara no estan tots és que he rebut el nom
-		pS->name = msg;
-	}	
+	else {
+		if (comand == "USERINFO") {
+			
+			//Ens guardem el nom
+			string n;
+			receivedPacket >> n;
+			pS->name = n;
+			
+			//Avisem a tots els clients que hi ha una nova connexio
+			Packet newConection;
+			string c = "PLAYERNAME";
+			newConection << c << pS->name;
+			SendAllPlayers(newConection, pS->sock);
+
+			//Si tots els jugadors ja estan conectats avisem
+			if (players.size() == maxPlayers && EveryoneHasName()) {
+				cout << "Todos los jugadores estan conectados!" << endl;
+
+				//Enviem conforme poden començar a jogar				
+				SendAllPlayers("STARTGAME", NULL);
+
+				//Aixo ja es pq pintin a la consola
+				SendAllPlayers("All players are connected", NULL);
+			}
+			else {
+				SendAllPlayers("Waiting for players...", NULL);
+			}
+		}
+	}
+	
 	
 }
 bool ServerLogic::EveryoneHasName() {

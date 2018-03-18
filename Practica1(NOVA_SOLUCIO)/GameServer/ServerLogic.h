@@ -26,6 +26,7 @@ public:
 	bool IsCardValid(Card cardToTest);
 	void ServerManager(int _maxPlayers);
 	void SendAllPlayers(string msg, TcpSocket* clientToExclude);
+	void SendAllPlayers(Packet msg, TcpSocket* clientToExclude);
 	void ComunicationManager(Packet receivedMsg, PlayerServer* pS);
 	bool EveryoneHasName();
 };

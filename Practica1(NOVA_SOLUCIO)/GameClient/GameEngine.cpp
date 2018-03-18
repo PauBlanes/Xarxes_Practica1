@@ -5,12 +5,6 @@ using namespace std;
 using namespace sf;
 
 
-sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command);
-
-void receiveText(TcpSocket* sock, vector<string>* msgArray);
-
-string name;
-
 GameEngine::GameEngine()
 {	
 }
@@ -22,21 +16,18 @@ GameEngine::~GameEngine()
 void GameEngine::start() {
 
 	cout << "Client" << endl;
-	//PER PROVAR QUE FUNCION
 	sf::IpAddress ip = sf::IpAddress::getLocalAddress();
 	sf::TcpSocket socket;
 
 	char connectionType;
 	std::string intro = "Connected to: Servidor";
-
-	std::vector<std::string> aMensajes;
+	
 	aMensajes.push_back(intro);
 
 	sf::Vector2i screenDimensions(800, 600);
 
 	sf::RenderWindow gameWindow;
 	sf::RenderWindow chatWindow;
-
 
 	sf::Font font;
 
@@ -112,19 +103,15 @@ void GameEngine::start() {
 	else if (status == Socket::Done) {
 		//Enviem el nostre nom
 		cout << "Conected, Chose your name..." << endl;
-		cin >> name;
-		VSend(&socket, name, "");
+		cin >> me.name;
+		VSend(&socket, me.name, "USERINFO");
 		
-		//Esperem a rebre els dels altres
-		Packet packet;
-		string receivedMsg;
-		while (receivedMsg != "PLAYERNAMES")
+		//Anem rebent info dels altres fins que el server ens digui que podem començar			
+		while (!canStart)
 		{			
-			socket.receive(packet);			
-			packet >> receivedMsg;			
-		}			
-		//Omplir array players amb els noms
-
+			ReceiveAndManage(&socket);
+		}
+		
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
 	}
@@ -171,7 +158,7 @@ void GameEngine::start() {
 
 					//	SEND
 					//Enviem al altre					
-					if (VSend(&socket, mensaje, "") != Socket::Status::Done) {
+					if (VSend(&socket, mensaje, "MSG") != Socket::Status::Done) {
 						aMensajes.push_back("there is no connection");
 					}
 
@@ -191,7 +178,8 @@ void GameEngine::start() {
 			}
 		}
 		chatWindow.draw(separator);
-		receiveText(&socket, &aMensajes);
+		//receiveText(&socket, &aMensajes);
+		ReceiveAndManage(&socket);
 
 		for (size_t i = 0; i < aMensajes.size(); i++)
 		{
@@ -212,24 +200,32 @@ void GameEngine::start() {
 	socket.disconnect();
 }
 
-sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command) {
+sf::Socket::Status GameEngine::VSend(sf::TcpSocket* sock, string msg, string command) {
 
 	sf::Socket::Status status;
-	string toSend = /*name + */msg;
+	string toSend;
 	size_t bytesSend;
 	Packet packet2Send;
-	if (command != "")
-		packet2Send << command << toSend;
-	else
-		packet2Send << toSend;
 	
+	if (command == "")
+		packet2Send << toSend;
+	else {
+		if (command == "MSG") {
+			toSend = me.name + msg;
+		}
+		else
+			toSend = msg;
+		packet2Send << command << toSend;
+	}
+		
+
 	do
 	{		
 		status = sock->send(packet2Send);		
 	} while (status == sf::Socket::Partial);
 	return status;
 }
-void receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
+void GameEngine::receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
 	size_t received;
 	sf::Socket::Status status;
 	string tmp;
@@ -260,4 +256,34 @@ void receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes) {
 		break;
 	}
 
+}
+void GameEngine::ReceiveAndManage(TcpSocket* sock) {
+	
+	sf::Socket::Status status;
+	Packet receivedPacket;
+	status = sock->receive(receivedPacket);
+	
+	string comand;
+	receivedPacket >> comand;
+
+	if (comand == "PLAYERNAME") {
+		string newName;
+		receivedPacket >> newName;
+		PlayerClient newPlayer;
+		newPlayer.name = newName;
+		others.push_back(newPlayer);
+	}
+	else if (comand == "STARTGAME") {
+		canStart = true;
+	}
+	else if (comand == "FILLCARDS") {}
+	else if (comand == "UPDATESTACK") {}
+	else if (comand == "WIN") {}
+	else if (comand == "STARTTIMER") {}
+	else if (comand == "ENEMYCARDS") {}
+	else if (comand == "MSG") {
+		string msg;
+		receivedPacket >> msg;
+		aMensajes.push_back(msg);
+	}
 }

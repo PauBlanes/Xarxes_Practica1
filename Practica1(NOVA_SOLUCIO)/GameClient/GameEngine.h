@@ -17,7 +17,10 @@ public:
 	GameEngine();
 	~GameEngine();
 	void start();
-
+	sf::Socket::Status VSend(sf::TcpSocket* sock, string msg, string command);
+	void ReceiveAndManage(TcpSocket* sock);
+	void receiveText(sf::TcpSocket* sock, std::vector<std::string>* aMensajes);
+	
 private:
 	pokerImg pocker;
 	vector <position> playerPockerPos;
@@ -27,5 +30,13 @@ private:
 	vector <Sprite> otherPlayerPocker;
 
 	Sprite centerCard;
+
+	PlayerClient me;
+	vector<PlayerClient> others;
+	int otherPlayers;
+
+	bool canStart;
+
+	std::vector<std::string> aMensajes;
 };
 

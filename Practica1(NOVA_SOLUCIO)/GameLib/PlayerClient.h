@@ -6,7 +6,8 @@ using namespace std;
 
 struct PlayerClient {
 	string name;
-	int cardsInHand;
+	int numCards;
+	bool myTurn;
 };
 
 
