@@ -23,10 +23,9 @@ Card::Card(){}
 void Card::SetCard(int num, CardColor c) {	
 		
 	//Setegem el sprite
-	filename;	
 	number = num;
 	color = c;
-	filename = "img/" + to_string(number) + "-" + to_string(color+1) + ".jpg";	
+	filename = "img/" + to_string(number) + "-" + to_string(color + 1) + ".jpg";	
 		
 }
 Sprite Card::GetSprite() { //aixo ho fem pq perdem al referencia a la textura al treballar amb vectors sino

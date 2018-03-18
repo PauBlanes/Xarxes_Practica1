@@ -20,6 +20,7 @@ private:
 	Card topCard; //la carta de la pila del mig
 	list<TcpSocket*> clients;
 	vector<PlayerServer>players;
+	int turnIndex;
 	int maxPlayers;
 	Deck deck;
 public:

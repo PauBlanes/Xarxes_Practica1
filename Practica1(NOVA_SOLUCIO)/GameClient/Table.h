@@ -16,4 +16,5 @@ public:
 	vector<Card>otherCards;
 	vector<Vector2i> emptyCardSlots;
 	void FillCards(Packet newCards);
+	void UpdateStack(Packet newCard);
 };

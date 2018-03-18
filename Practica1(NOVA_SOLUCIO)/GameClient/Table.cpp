@@ -35,7 +35,9 @@ Table::Table() {
 	emptyCardSlots.push_back({ 430,450 });
 	emptyCardSlots.push_back({ 480,450 });
 	emptyCardSlots.push_back({ 280,450 });
-	
+
+	Card temp(Vector2i(380, 280));
+	centerCard = temp;
 }
 void Table::DrawTable(RenderWindow* window) {
 	
@@ -54,8 +56,7 @@ void Table::DrawTable(RenderWindow* window) {
 
 void Table::FillCards(Packet newCards) {
 	int numCards;
-	newCards >> numCards;
-	cout << numCards << endl;
+	newCards >> numCards;	
 	for (int i = 0; i < numCards; i++) {
 		int cardNum; int cardColor;
 		newCards >> cardNum >> cardColor;		
@@ -63,4 +64,10 @@ void Table::FillCards(Packet newCards) {
 		myCards.push_back(temp);
 		emptyCardSlots.erase(emptyCardSlots.begin());
 	}
+}
+void Table::UpdateStack(Packet newCard) {
+	int cardNum; int cardColor;
+	newCard >> cardNum >> cardColor;
+	cout << cardNum << ":" << cardColor << endl;
+	centerCard.SetCard(cardNum, (CardColor)(cardColor+1));
 }

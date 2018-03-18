@@ -1,6 +1,9 @@
 #include "ServerLogic.h"
 
 ServerLogic::ServerLogic(){
+	//Agafem la primera carta de la pila per posar-la al mig
+	topCard.SetCard(deck.stack[0].number, deck.stack[0].color);
+	deck.stack.erase(deck.stack.begin());
 }
 bool ServerLogic::IsCardValid(Card cardToTest) {
 	if (topCard.color == cardToTest.color && topCard.number == cardToTest.number) // si es el mismo numero y color es valido
@@ -168,7 +171,8 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 				//Enviem les cartes a cada jugador i ells ja entenen que han de començar
 				for (int i = 0; i < players.size(); i++) {
 					SendCommand("FILLCARDS", &players[i]);
-				}				
+				}
+				SendCommand("UPDATESTACK", NULL); //despres de omplir la ma dels jugadors enviem la primera carta
 
 				//Aixo ja es pq pintin a la consola
 				SendAllPlayers("All players are connected", NULL);
@@ -190,15 +194,21 @@ bool ServerLogic::EveryoneHasName() {
 }
 void ServerLogic::SendCommand(string cmd, PlayerServer* pS) {
 	Packet packToSend;
-	if (cmd == "FILLCARDS") {
-		packToSend << "FILLCARDS";
+	packToSend << cmd;
+
+	if (cmd == "FILLCARDS") {		
 		int howMany = 5 - pS->myCards.size();
 		packToSend << howMany;		
 		for (int i = 0; i < howMany; i++) {
-			Card newCard = deck.stack[0];
-			packToSend << newCard.number << newCard.color;
+			Card newCard = deck.stack[0];			
+			packToSend << newCard.number << (int)newCard.color;
 			deck.stack.erase(deck.stack.begin());
 		}
 		pS->sock->send(packToSend);
+	}
+	if (cmd == "UPDATESTACK") {
+		cout << "STACKTIME" << endl;
+		packToSend << topCard.number << (int)topCard.color;
+		SendAllPlayers(packToSend, NULL);
 	}
 }

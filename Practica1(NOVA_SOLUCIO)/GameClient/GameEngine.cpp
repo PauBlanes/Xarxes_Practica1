@@ -84,10 +84,7 @@ void GameEngine::start() {
 		}
 	
 		string intro = "Connected to: Servidor";
-		aMensajes.push_back(intro);
-		
-		gameTable.centerCard.SetCard(11, black);
-		gameTable.centerCard.SetPosition(Vector2i(380, 280));
+		aMensajes.push_back(intro);		
 
 		gameWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Game");
 		chatWindow.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Chat");
@@ -257,8 +254,7 @@ void GameEngine::ReceiveAndManage(TcpSocket* sock) {
 			gameTable.FillCards(receivedPacket);
 		}		
 		else if (comand == "UPDATESTACK") {
-			//pillar info del packet
-			//gameTable.centerCard.SetVars(11, green, Vector2i(380, 280), false);
+			gameTable.UpdateStack(receivedPacket);
 		}
 		else if (comand == "WIN") {}
 		else if (comand == "STARTTIMER") {}
