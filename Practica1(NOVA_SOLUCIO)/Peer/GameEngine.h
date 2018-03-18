@@ -8,7 +8,7 @@
 #include <thread>
 #include <mutex>
 #include "PlayerServer.h"
-#include "Deck.h"
+
 
 using namespace std;
 using namespace sf;
@@ -17,9 +17,9 @@ using namespace sf;
 
 struct PeerInfo {
 	string IP;
-	unsigned int port;
-	string name;
+	unsigned int port;	
 };
+
 
 class PeerLogic {
 private:
@@ -28,17 +28,18 @@ private:
 
 	vector<string> aMensajes;
 
-	/*vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
-	Card topCard; //la carta de la pila del mig
+	//Deck deck;
+	//vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
+	//Card topCard; //la carta de la pila del mig	
 	int turnIndex;	
-	Deck deck;
-
+	
 	Clock clock;
 	Time turnDuration;
 	vector<thread> some_threads;
 	mutex myMutex;
 
-	bool gameEnded;*/
+	bool gameEnded;
+		
 
 public:
 	PeerLogic();
@@ -51,4 +52,6 @@ public:
 	void SendManager(string cmd, string msg);
 	void SendAllPlayers(Packet msg);
 	bool EveryoneHasName();
+	
 };
+

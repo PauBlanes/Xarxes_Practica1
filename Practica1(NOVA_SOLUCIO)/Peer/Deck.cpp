@@ -1,6 +1,8 @@
-#include "Deck.h"
+#pragma once
+/*#include "Deck.h"
 
-/*Deck::Deck() {
+
+Deck::Deck() {
 	std::srand(unsigned(std::time(0)));
 	
 	//Setegem pila

@@ -1,3 +1,4 @@
+#pragma once
 #include "GameEngine.h"
 
 PeerLogic::PeerLogic(){}
@@ -152,8 +153,8 @@ void PeerLogic::ReceiveFromAllManager() {
 		ReceiveManager(&others[i]);
 	}
 }
-void PeerLogic::gameLoop() {
-	
+void PeerLogic::gameLoop() {	
+
 	sf::Vector2i screenDimensions(800, 600);
 
 	sf::RenderWindow window;

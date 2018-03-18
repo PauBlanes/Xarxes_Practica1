@@ -12,3 +12,4 @@ struct PlayerServer {
 	TcpSocket* sock;
 	bool myTurn;
 };
+
