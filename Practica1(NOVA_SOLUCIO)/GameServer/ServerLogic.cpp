@@ -204,8 +204,7 @@ void ServerLogic::ComunicationManager(Packet receivedPacket, PlayerServer* pS) {
 					SendCommand("FILLCARDS", &players[i]);
 				}
 				SendCommand("UPDATESTACK", NULL); //despres de omplir la ma dels jugadors enviem la primera carta
-				SendCommand("WIN", NULL);
-
+				
 				//Enviem al primer jugador que es el seu torn i comencem la rutina de torns
 				clock.restart();
 				players[turnIndex].myTurn = true;

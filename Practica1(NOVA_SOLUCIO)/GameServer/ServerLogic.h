@@ -21,7 +21,6 @@ private:
 	bool running;
 	vector<Card> stack; //daqui anirem repartint als jugadors mentre en quedin
 	Card topCard; //la carta de la pila del mig
-	list<TcpSocket*> clients;
 	vector<PlayerServer>players;
 	int turnIndex;
 	int maxPlayers;

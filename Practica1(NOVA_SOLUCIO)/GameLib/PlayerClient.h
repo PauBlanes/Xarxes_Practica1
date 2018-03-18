@@ -5,8 +5,7 @@
 using namespace std;
 
 struct PlayerClient {
-	string name;
-	int numCards = 5;
+	string name;	
 	bool myTurn;
 };
 

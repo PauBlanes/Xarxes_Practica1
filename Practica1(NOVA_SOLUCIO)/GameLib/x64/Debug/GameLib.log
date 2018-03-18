@@ -1,6 +1,1 @@
-﻿  Card.cpp
-c:\users\pblan\documents\github\xarxes_practica1\practica1(nova_solucio)\gamelib\card.cpp(13): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\pblan\documents\github\xarxes_practica1\practica1(nova_solucio)\gamelib\card.cpp(20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\pblan\documents\github\xarxes_practica1\practica1(nova_solucio)\gamelib\card.cpp(37): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\pblan\documents\github\xarxes_practica1\practica1(nova_solucio)\gamelib\card.cpp(41): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  GameLib.vcxproj -> C:\Users\pblan\Documents\GitHub\Xarxes_Practica1\Practica1(NOVA_SOLUCIO)\x64\Debug\GameLib.lib
+﻿  GameLib.vcxproj -> C:\Users\pblan\Documents\GitHub\Xarxes_Practica1\Practica1(NOVA_SOLUCIO)\x64\Debug\GameLib.lib

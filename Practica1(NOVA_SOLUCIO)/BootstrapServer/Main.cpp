@@ -8,11 +8,12 @@
 using namespace std;
 using namespace sf;
 
-#define NUM_PLAYERS 3
+#define NUM_PLAYERS 2
 
 struct PeerInfo {
 	string IP;
 	unsigned int port;
+	string name;
 };
 
 int main()
